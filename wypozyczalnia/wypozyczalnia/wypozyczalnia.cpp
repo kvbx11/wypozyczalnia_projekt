@@ -7,20 +7,24 @@ int main() {
     char key;
 
     while (true) {
-        system("cls"); // czyści konsolę
-        std::cout << "=== MENU ===\n";
-        std::cout << (wybor == 0 ? "> " : "  ") << "Opcja 1\n";
-        std::cout << (wybor == 1 ? "> " : "  ") << "Opcja 2\n";
-        std::cout << (wybor == 2 ? "> " : "  ") << "Opcja 3\n";
+        system("cls"); 
+        std::cout << "=== WYPOŻYCZALNIA SPRZĘTU WODNEGO ===\n";
+        std::cout << (wybor == 0 ? "> " : "  ") << "Wyświetl dostępne sprzęty\n";
+        std::cout << (wybor == 1 ? "> " : "  ") << "Wypożycz sprzęt\n";
+        std::cout << (wybor == 2 ? "> " : "  ") << "Zakończ wypożyczenie\n";
+        std::cout << (wybor == 3 ? "> " : "  ") << "Cennik\n";
+        std::cout << (wybor == 4 ? "> " : "  ") << "Edytuj sprzęty\n";
+        std::cout << (wybor == 5 ? "> " : "  ") << "Wyjdź\n";
+        std::cout << "=====================================\n";
 
-        key = _getch(); // odczytuje znak bez Entera
 
-        if (key == 72) wybor = (wybor + 2) % 3; // strzałka w górę
-        else if (key == 80) wybor = (wybor + 1) % 3; // strzałka w dół
+        key = _getch();
+
+        if (key == 72) wybor = (wybor + 5) % 6;
+        else if (key == 80) wybor = (wybor + 1) % 6; 
         else if (key == 13) { // Enter
             std::cout << "Wybrano opcję " << (wybor + 1) << "!\n";
             system("pause");
-            break;
         }
     }
 
