@@ -1,0 +1,7 @@
+Kajak 5 120.00
+Deska_Surfingowa 8 80.00
+Ponton 3 300.00
+Kamizelka 20 20.00
+Wioslo 15 35.00
+Lodka_Motorowa 2 980.00
+Paddleboard 6 400.00
