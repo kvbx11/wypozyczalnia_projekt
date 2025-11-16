@@ -1,0 +1,7 @@
+Kajak 5 120
+SUP 8 180
+Ponton 3 300
+Kamizelka 20 20
+Wioslo 15 35
+Lodka 2 980
+Paddleboard 6 400
