@@ -1,0 +1,71 @@
+Wyświetl dostępne sprzęty
+Cel: Uzyskać listę aktualnie dostępnych sprzętów.
+Warunki wstępne: System uruchomiony, użytkownik w menu głównym.
+Warunki końcowe: Lista sprzętu została wyświetlona.
+Główny scenariusz:
+1. Użytkownik wybiera opcję Wyświetl dostępne sprzęty.
+2. System pobiera listę sprzętu.
+3. System wyświetla sprzęty dostępne do wypożyczenia.
+
+Wypożycz sprzęt
+Aktor: Pracownik obsługi wypożyczalni
+Cel: Utworzenie nowego wypożyczenia sprzętu.
+Warunki wstępne: Sprzęt musi być dostępny.
+Warunki końcowe: Utworzone wypożyczenie lub komunikat o braku dostępności.
+Główny scenariusz:
+1. Użytkownik wybiera Wypożycz sprzęt.
+2. System prosi o dane klienta.
+3. Użytkownik wprowadza dane klienta.
+4. System wyświetla listę sprzętu.
+5. Użytkownik wybiera sprzęt.
+6. System pobiera datę wypożyczenia/zwrotu.
+7. System sprawdza dostępność sprzętu.
+8. System stwierdza, że sprzęt jest dostępny.
+9. System tworzy rezerwację.
+10. System aktualizuje dostępność sprzętu.
+
+Scenariusz alternatywny – sprzęt zajęty:
+7. System wykrywa, że sprzęt jest niedostępny.
+8. System wyświetla komunikat: Sprzęt zajęty.
+9. Proces kończy się bez utworzenia wypożyczenia.
+
+Zakończ wypożyczenie
+Cel: Ukończyć wypożyczenie i naliczyć opłatę.
+Warunki wstępne: Musi istnieć aktywne wypożyczenie.
+Warunki końcowe: Sprzęt zwrócony, opłata naliczona, dostępność zaktualizowana.
+Główny scenariusz:
+1. Użytkownik wybiera Zakończ wypożyczenie.
+2. System wyświetla listę aktywnych wypożyczeń.
+3. Użytkownik wybiera wypożyczenie.
+4. System oblicza opłatę końcową.
+5. System aktualizuje dostępność sprzętu.
+6. Proces wypożyczenia zostaje zakończony.
+
+Wyświetl cennik
+Cel: Zapoznać się z obowiązującymi cenami wypożyczenia.
+Warunki wstępne: Brak.
+Warunki końcowe: Cennik wyświetlony.
+1. Główny scenariusz:
+2. Użytkownik wybiera Wyświetl cennik.
+3. System pobiera informacje o cenach.
+4. System wyświetla cennik.
+
+Edytuj sprzęt
+Cel: Zmodyfikować dane dotyczące sprzętu.
+Warunki wstępne: Sprzęt istnieje w bazie.
+Warunki końcowe: Dane sprzętu zostają zmienione.
+Główny scenariusz:
+1. Użytkownik wybiera Edytuj sprzęt.
+2. System wyświetla listę sprzętu.
+3. Użytkownik wybiera sprzęt do edycji.
+4. System umożliwia zmianę danych.
+5. Użytkownik zapisuje zmiany.
+6. System aktualizuje informacje o sprzęcie.
+
+Wyjdź z systemu
+Cel: Zakończyć pracę z systemem.
+Warunki wstępne: System jest uruchomiony.
+Warunki końcowe: Praca z systemem zostaje zakończona.
+1. Główny scenariusz:
+2. Użytkownik wybiera Wyjdź.
+3. System zamyka aplikację i wyświetla Koniec.
