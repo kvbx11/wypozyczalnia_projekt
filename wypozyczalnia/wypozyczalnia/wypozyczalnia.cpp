@@ -10,14 +10,12 @@ using namespace std;
 class Sprzet {
 private:
     string nazwa;
-    int ilosc; // stan poczatkowy
-    int dostepne; // stan aktualny
+    int ilosc;
     double cena;
 public:
     Sprzet(string n, int il, double c){
         this->nazwa = n;
         this->ilosc = il;
-        this->dostepne = this->ilosc;
         this->cena = c;
     }
 
@@ -27,20 +25,17 @@ public:
     int get_ilosc() {
         return ilosc;
 	}
-    int get_dostepne() {
-        return dostepne;
-    }
     double get_cena() {
         return cena;
     }
     void set_nazwa(string n) {
         this->nazwa = n;
     }
-    void set_ilosc(int i) {
-        this->ilosc = i;
-    }
     void set_cena(double c) {
         this->cena = c;
+    }
+    void set_ilosc(int il) {
+        this->ilosc = il;
     }
 };
 
@@ -79,7 +74,7 @@ public:
         plik.open("sprzet_wodny.txt", ios::out);
         if (plik.good()) {
             for (auto it : sprzety) {
-                plik << it.get_nazwa() << " " << it.get_dostepne() << " " << it.get_cena() << endl;
+                plik << it.get_nazwa() << " " << it.get_ilosc() << " " << it.get_cena() << endl;
             }
         }
         else {
@@ -90,7 +85,7 @@ public:
     void wyswietl_sprzety() {
         cout << "SPRZĘT DOSTĘPNY W NASZEJ WYPOŻYCZALNI" << endl;
 		for (auto it : sprzety) {
-            cout <<" > " << it.get_nazwa() << ", dostępna ilość: " << it.get_dostepne() << endl;
+            cout <<" > " << it.get_nazwa() << ", dostępna ilość: " << it.get_ilosc() << endl;
         }
         cout << "=====================================\n";
     }
@@ -112,6 +107,7 @@ public:
             for (int i = 0; i < sprzety.size(); i++) {
                 cout << (wybor == i ? "> " : "  ") << sprzety[i].get_nazwa()<<"\n";
             }
+            cout << endl;
             cout << (wybor == sprzety.size() ? "> " : "  ") << "Wstecz" << "\n";
             cout << "=====================================\n";
             key = _getch();
@@ -137,9 +133,10 @@ public:
         cout << "===== WYBÓR PARAMETRU DO EDYCJI =====" << endl;
         while (true) {
             system("cls");
-            cout << (wybor == 0 ? "> " : "  ") << sprzety[idx].get_nazwa() << "\n";
-            cout << (wybor == 1 ? "> " : "  ") << sprzety[idx].get_ilosc() << "\n";
-            cout << (wybor == 2 ? "> " : "  ") << sprzety[idx].get_cena() << "\n";
+            cout << (wybor == 0 ? "> " : "  ") <<"Sprzęt: " << sprzety[idx].get_nazwa() << "\n";
+            cout << (wybor == 1 ? "> " : "  ") <<"Ilość (początkowa): " << sprzety[idx].get_ilosc() << "\n";
+            cout << (wybor == 2 ? "> " : "  ") << "Cena wynajmu (per dzień): " << sprzety[idx].get_cena() << "\n";
+            cout << endl;
             cout << (wybor == 3 ? "> " : "  ") << "Powrót" << "\n";
             cout << "=====================================\n";
             key = _getch();
@@ -195,6 +192,7 @@ int main() {
         cout << (wybor == 2 ? "> " : "  ") << "Zakończ wypożyczenie\n";
         cout << (wybor == 3 ? "> " : "  ") << "Cennik\n";
         cout << (wybor == 4 ? "> " : "  ") << "Edytuj sprzęty\n";
+        cout << endl;
         cout << (wybor == 5 ? "> " : "  ") << "Wyjdź\n";
         cout << "=====================================\n";
         cout << endl;
@@ -224,7 +222,6 @@ int main() {
                 break;
             case 4:
                 wypozyczalnia.wybierz_sprzet_do_edycji();
-                //system("pause");
 				break;
             case 5:
                 cout << "Dziękujemy za skorzystanie z oprogramowania. Do zobaczenia!" << endl;
