@@ -14,8 +14,12 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
@@ -24,7 +28,7 @@
               "RelativeDocumentMoniker": "wypozyczalnia\\wypozyczalnia.cpp",
               "ToolTip": "C:\\Users\\jakub\\Desktop\\wypozyczalnia_projekt\\wypozyczalnia\\wypozyczalnia\\wypozyczalnia.cpp",
               "RelativeToolTip": "wypozyczalnia\\wypozyczalnia.cpp",
-              "ViewState": "AgIAAHUAAAAAAAAAAAAAAIgAAAAWAAAAAAAAAA==",
+              "ViewState": "AgIAAFcAAAAAAAAAAAAAAG4AAAA2AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-11-16T11:48:17.884Z",
               "EditorCaption": ""
