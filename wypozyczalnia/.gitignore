@@ -1,0 +1,36 @@
+# Visual Studio
+.vs/
+*.vcxproj.user
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build directories
+x64/
+Debug/
+Release/
+bin/
+obj/
+
+# Compiled binaries
+*.exe
+*.dll
+*.lib
+*.pdb
+*.ilk
+*.idb
+*.iobj
+*.ipdb
+
+# Cache & DB
+*.db
+*.opendb
+
+# Logs
+*.log
+
+# Other
+*.cache
+*.tmp
+*.temp
