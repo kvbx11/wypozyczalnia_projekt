@@ -4,6 +4,7 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <ctime>
 
 using namespace std;
 
@@ -39,9 +40,99 @@ public:
     }
 };
 
+class OsobaWypozyczajaca{
+private:
+    string imie;
+    string nazwisko;
+	string telefon;
+public:
+	OsobaWypozyczajaca() {}
+    OsobaWypozyczajaca(string im, string naz, string tel) {
+        this->imie = im;
+        this->nazwisko = naz;
+        this->telefon = tel;
+	}
+};
+
+class Wypozyczenie {
+private:
+    int id_wypozyczenia;
+    string nazwa_sprzetu;
+    int ilosc_sprzetu;
+    string poczatek_wypozyczenia;
+    string koniec_wypozyczenia;
+    int ilosc_dni_wypozyczenia;
+    OsobaWypozyczajaca klient;
+
+    string get_date() {
+        time_t now = time(0);
+        tm tm;
+        localtime_s(&tm, &now);
+        char buf[11];
+        strftime(buf, sizeof(buf), "%Y-%m-%d", &tm);
+        return string(buf);
+    }
+
+    string oblicz_date() {
+        tm tm = {};
+        tm.tm_year = stoi(poczatek_wypozyczenia.substr(0, 4)) - 1900;
+        tm.tm_mon = stoi(poczatek_wypozyczenia.substr(5, 2)) - 1;
+        tm.tm_mday = stoi(poczatek_wypozyczenia.substr(8, 2));
+        tm.tm_mday += ilosc_dni_wypozyczenia;
+
+        mktime(&tm);
+        char buf[11];
+        strftime(buf, sizeof(buf), "%Y-%m-%d", &tm);
+        return string(buf);
+    }
+
+public:
+    Wypozyczenie(int id, string nazwa, int ilosc, int dni) {
+        this->id_wypozyczenia = id;
+        this->nazwa_sprzetu = nazwa;
+        this->ilosc_sprzetu = ilosc;
+        this->ilosc_dni_wypozyczenia = dni;
+
+        this->poczatek_wypozyczenia = get_date();
+        this->koniec_wypozyczenia = oblicz_date();
+    }
+
+    void wypozycz() {
+        cout << "========= PODAJ DANE KLIENTA ======== " << endl;
+		string imie, nazwisko, telefon;
+		cout << "Imię: ";
+		cin >> imie;
+		cout << "Nazwisko: ";
+		cin >> nazwisko;
+		cout << "Telefon: ";
+		cin >> telefon;
+        cout << "=====================================\n";
+        cout << endl;
+		klient=OsobaWypozyczajaca(imie, nazwisko, telefon);
+		cout << "Pomyślnie wypożyczono sprzęt!" << endl;
+    }
+    string get_nazwa_sprzetu() {
+        return nazwa_sprzetu;
+	}
+    int get_ilosc_sprzetu() {
+        return ilosc_sprzetu;
+	}
+    int get_id() {
+		return id_wypozyczenia;
+    }
+    int get_ilosc_dni_wypozyczenia() {
+        return ilosc_dni_wypozyczenia;
+	}
+    string get_koniec_wypozyczenia() {
+        return koniec_wypozyczenia;
+    }
+};
+
+
 class Wypozyczalnia{
 private:
     vector<Sprzet>sprzety;
+	vector<Wypozyczenie>wypozyczenia;
 public:
     Wypozyczalnia() {
         wczytaj();
@@ -174,7 +265,105 @@ public:
             }
         }
     }
+
+    void wypozycz_sprzet() {
+        int wybor = 0;
+        char key;
+
+        while (true) {
+            system("cls");
+            cout << "===== WYBIERZ SPRZĘT DO WYPOŻYCZENIA =====\n";
+
+            for (int i = 0; i < sprzety.size(); i++) {
+                cout << (wybor == i ? "> " : "  ") << sprzety[i].get_nazwa()
+                    << " (dostępne: " << sprzety[i].get_ilosc() << ")\n";
+            }
+
+            cout << endl;
+            cout << (wybor == sprzety.size() ? "> " : "  ") << "Wstecz\n";
+            cout << "===========================================\n";
+
+            key = _getch();
+
+            if (key == 72) wybor = (wybor + sprzety.size()) % (sprzety.size() + 1);
+            else if (key == 80) wybor = (wybor + 1) % (sprzety.size() + 1);
+            else if (key == 13) { // Enter
+
+                if (wybor == sprzety.size()) {
+                    return; // powrót
+                }
+
+                int ilosc, dni;
+                cout << "Podaj ilość do wypożyczenia: ";
+                cin >> ilosc;
+
+                cout << "Podaj ilość dni wypożyczenia: ";
+                cin >> dni;
+
+                if (sprzety[wybor].get_ilosc() < ilosc) {
+                    cout << "Niewystarczająca ilość sprzętu!\n";
+                    system("pause");
+                    continue;
+                }
+
+                int nowe_id = wypozyczenia.size() + 1;
+                Wypozyczenie w1(nowe_id, sprzety[wybor].get_nazwa(), ilosc, dni);
+
+                w1.wypozycz(); 
+
+                sprzety[wybor].set_ilosc(sprzety[wybor].get_ilosc() - ilosc);
+
+                wypozyczenia.push_back(w1);
+
+                cout << "\nSprzęt został wypożyczony poprawnie!\n";
+                system("pause");
+            }
+        }
+    }
+
+    void wyswietl_wypozyczenia() {
+        cout << "===== AKTUALNE WYPOŻYCZENIA =====" << endl;
+        if (wypozyczenia.empty()) {
+            cout << "Brak aktualnych wypożyczeń." << endl;
+        }
+        else {
+            int wybor = 0;
+            char key;
+
+
+            while (true) {
+                system("cls");
+                int i = 0;
+                for (auto it : wypozyczenia) {
+                    cout << (wybor == i ? "> " : "  ") <<"ID: " << wypozyczenia[i].get_id() <<" -> "<<wypozyczenia[i].get_nazwa_sprzetu() <<", " << wypozyczenia[i].get_ilosc_sprzetu()<<" szt, koniec wypożyczenia: "<< wypozyczenia[i].get_koniec_wypozyczenia()<< "\n";
+                    i++;
+                }
+                cout << endl;
+                cout << (wybor == wypozyczenia.size() ? "> " : "  ") << "Wstecz" << "\n";
+                cout << "=====================================\n";
+                key = _getch();
+
+                if (key == 72) wybor = (wybor + wypozyczenia.size()) % (wypozyczenia.size() + 1);
+                else if (key == 80) wybor = (wybor + 1) % (wypozyczenia.size() + 1);
+                else if (key == 13) { // Enter
+                    if (wybor == wypozyczenia.size()) {
+                        return;
+                    }
+                    else {
+						cout << "Funkcja zakończenia wypożyczenia nie została jeszcze zaimplementowana."<<endl;
+                        //zakoncz_wypozyczenie();
+                        system("pause");
+                    }
+
+                }
+            }
+
+        }
+        cout << "=================================" << endl;
+	}
 };
+
+
 
 
 int main() {
@@ -209,11 +398,10 @@ int main() {
                 system("pause");
                 break;
             case 1:
-                cout << "Funkcja wypożyczania sprzętu w budowie." << endl;
-                system("pause");
+				wypozyczalnia.wypozycz_sprzet();
 				break;
             case 2:
-                cout << "Funkcja zakończenia wypożyczenia w budowie." << endl;
+                wypozyczalnia.wyswietl_wypozyczenia();
 				system("pause");
                 break;
             case 3:
