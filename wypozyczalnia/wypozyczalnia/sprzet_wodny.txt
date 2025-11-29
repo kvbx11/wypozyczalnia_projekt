@@ -1,6 +1,6 @@
-Kajak 5 120
+Kajak 17 120
 SUP 8 180
-Tompon 100 3000
+Ponton 100 3000
 Kamizelka 20 20
 Wioslo 15 35
 Lodka 2 980
