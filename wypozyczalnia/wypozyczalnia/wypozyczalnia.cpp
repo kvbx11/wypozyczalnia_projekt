@@ -482,6 +482,8 @@ void modul_pracownika(Wypozyczalnia& wypozyczalnia) {
                 cout << "Dziękujemy za skorzystanie z oprogramowania. Do zobaczenia!\n";
                 return;
             }
+            
+
         }
     }
 }
