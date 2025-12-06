@@ -6,8 +6,17 @@
 #include <sstream>
 #include <ctime>
 #include <windows.h>
+#include <tuple>
 
 using namespace std;
+
+void SetColor(int textColor)
+{
+    cout << "\033[" << textColor << "m";
+}
+void ResetColor() { 
+    cout << "\033[0m"; 
+}
 
 class Sprzet {
 private:
@@ -17,13 +26,25 @@ private:
 public:
     Sprzet(string n = "", int il = 0, double c = 0) : nazwa(n), ilosc(il), cena(c) {}
 
-    string get_nazwa() { return nazwa; }
-    int get_ilosc() { return ilosc; }
-    double get_cena() { return cena; }
+    string get_nazwa() { 
+        return nazwa; 
+    }
+    int get_ilosc() {
+        return ilosc;
+    }
+    double get_cena() { 
+        return cena; 
+    }
 
-    void set_nazwa(string n) { nazwa = n; }
-    void set_ilosc(int il) { ilosc = il; }
-    void set_cena(double c) { cena = c; }
+    void set_nazwa(string n) { 
+        nazwa = n; 
+    }
+    void set_ilosc(int il) { 
+        ilosc = il;
+    }
+    void set_cena(double c) { 
+        cena = c; 
+    }
 };
 
 class OsobaWypozyczajaca {
@@ -35,9 +56,15 @@ public:
     OsobaWypozyczajaca() {}
     OsobaWypozyczajaca(string im, string naz, string tel) : imie(im), nazwisko(naz), telefon(tel) {}
 
-    string get_imie() { return imie; }
-    string get_nazwisko() { return nazwisko; }
-    string get_telefon() { return telefon; }
+    string get_imie() {
+        return imie;
+    }
+    string get_nazwisko() {
+        return nazwisko; 
+    }
+    string get_telefon() {
+        return telefon; 
+    }
 };
 
 class Wypozyczenie {
@@ -92,17 +119,37 @@ public:
     }
 
 
-    string get_nazwa_sprzetu() { return nazwa_sprzetu; }
-    int get_ilosc_sprzetu() { return ilosc_sprzetu; }
-    int get_id() { return id_wypozyczenia; }
-    int get_ilosc_dni_wypozyczenia() { return ilosc_dni_wypozyczenia; }
-    string get_koniec_wypozyczenia() { return koniec_wypozyczenia; }
-    string get_poczatek_wypozyczenia() { return poczatek_wypozyczenia; }
-    OsobaWypozyczajaca get_klient() { return klient; }
+    string get_nazwa_sprzetu() { 
+        return nazwa_sprzetu;
+    }
+    int get_ilosc_sprzetu() { 
+        return ilosc_sprzetu; 
+    }
+    int get_id() { 
+        return id_wypozyczenia; 
+    }
+    int get_ilosc_dni_wypozyczenia() { 
+        return ilosc_dni_wypozyczenia; 
+    }
+    string get_koniec_wypozyczenia() {
+        return koniec_wypozyczenia; 
+    }
+    string get_poczatek_wypozyczenia() { 
+        return poczatek_wypozyczenia; 
+    }
+    OsobaWypozyczajaca get_klient() { 
+        return klient; 
+    }
 
-    void set_poczatek_wypozyczenia(const string& data) { poczatek_wypozyczenia = data; }
-    void set_koniec_wypozyczenia(const string& data) { koniec_wypozyczenia = data; }
-    void set_klient(OsobaWypozyczajaca k) { klient = k; }
+    void set_poczatek_wypozyczenia(const string& data) { 
+        poczatek_wypozyczenia = data; 
+    }
+    void set_koniec_wypozyczenia(const string& data) { 
+        koniec_wypozyczenia = data; 
+    }
+    void set_klient(OsobaWypozyczajaca k) {
+        klient = k; 
+    }
 };
 
 class Wypozyczalnia {
@@ -161,7 +208,179 @@ public:
             << w.get_klient().get_imie() << " " << w.get_klient().get_nazwisko() << " " << w.get_klient().get_telefon() << "\n";
     }
 
-    
+    void dodaj_uzytkownika() {
+        int wybor = 0;
+        char key;
+
+        while (true) {
+            system("cls");
+            cout << "===== DODAWANIE UŻYTKOWNIKA =====\n";
+            cout << (wybor == 0 ? "> " : "  ") << "Klient\n";
+            cout << (wybor == 1 ? "> " : "  ") << "Pracownik\n";
+            cout << (wybor == 2 ? "> " : "  ") << "Wstecz\n";
+            cout << "================================\n";
+
+            key = _getch();
+            if (key == 72) wybor = (wybor + 2) % 3;    
+            else if (key == 80) wybor = (wybor + 1) % 3; 
+            else if (key == 13) { // Enter
+                if (wybor == 2) return; // Wstecz
+
+                string login, haslo, telefon;
+                cout << "Login: ";
+                cin >> login;
+                cout << "Hasło: ";
+                cin >> haslo;
+                cout << "Telefon: ";
+                cin >> telefon;
+
+                if (login.empty() || haslo.empty() || telefon.empty()) {
+                    SetColor(91);
+                    cout << "Błąd: dane nie mogą być puste!\n";
+                    ResetColor();
+                    system("pause");
+                    return;
+                }
+
+                string nazwa_pliku = (wybor == 0) ? "klienci.txt" : "pracownicy.txt";
+                ofstream plik(nazwa_pliku, ios::app);
+
+                if (!plik.is_open()) {
+                    SetColor(91);
+                    cout << "Błąd zapisu do pliku!\n";
+                    ResetColor();
+                    system("pause");
+                    return;
+                }
+
+                plik << login << " " << haslo << " " << telefon << std::endl;
+                plik.close();
+
+                SetColor(92);
+                ResetColor();
+                cout << "Użytkownik został pomyślnie dodany!\n";
+                system("pause");
+                return; 
+            }
+        }
+    }
+
+    void manipuluj_uzytkownikami() {
+        int wybor_grupy = 0;
+        char key;
+
+        while (true) {
+            system("cls");
+            cout << "=== MANIPULACJA UŻYTKOWNIKAMI ===\n";
+            cout << (wybor_grupy == 0 ? "> " : "  ") << "Klienci\n";
+            cout << (wybor_grupy == 1 ? "> " : "  ") << "Pracownicy\n";
+            cout << (wybor_grupy == 2 ? "> " : "  ") << "Wstecz\n";
+            cout << "================================\n";
+
+            key = _getch();
+            if (key == 72) wybor_grupy = (wybor_grupy + 2) % 3;      
+            else if (key == 80) wybor_grupy = (wybor_grupy + 1) % 3; 
+            else if (key == 13) { 
+                if (wybor_grupy == 2) return; 
+
+                string nazwa_pliku = (wybor_grupy == 0) ? "klienci.txt" : "pracownicy.txt";
+                vector<tuple<string, string, string>> uzytkownicy; 
+
+
+                ifstream plik(nazwa_pliku);
+                if (!plik.is_open()) {
+                    SetColor(91);
+                    cout << "Nie udało się otworzyć pliku!\n";
+                    ResetColor();
+                    system("pause");
+                    continue;
+                }
+
+                string login, haslo, telefon;
+                while (plik >> login >> haslo >> telefon)
+                    uzytkownicy.push_back(make_tuple(login, haslo, telefon));
+                plik.close();
+
+                if (uzytkownicy.empty()) {
+                    SetColor(91);
+                    cout << "Brak użytkowników w tej grupie.\n";
+                    ResetColor();
+                    system("pause");
+                    continue;
+                }
+
+                int idx = 0;
+                while (true) {
+                    system("cls");
+                    cout << "=== LISTA UŻYTKOWNIKÓW ===\n";
+                    for (int i = 0; i < uzytkownicy.size(); i++)
+                        cout << (idx == i ? "> " : "  ") << get<0>(uzytkownicy[i]) << " | "
+                        << get<2>(uzytkownicy[i]) << "\n";
+                    cout << (idx == uzytkownicy.size() ? "> " : "  ") << "Wstecz\n";
+                    cout << "===========================\n";
+
+                    key = _getch();
+                    if (key == 72) idx = (idx + uzytkownicy.size()) % (uzytkownicy.size() + 1);
+                    else if (key == 80) idx = (idx + 1) % (uzytkownicy.size() + 1);
+                    else if (key == 13) {
+                        if (idx == uzytkownicy.size()) break; // Wstecz
+
+                        int wybor = 0;
+                        bool wyjscie_z_konta = false;
+
+                        while (!wyjscie_z_konta) {
+                            system("cls");
+                            cout << "=== KONTO: " << get<0>(uzytkownicy[idx]) << " ===\n";
+                            cout << (wybor == 0 ? "> " : "  ") << "Edytuj login\n";
+                            cout << (wybor == 1 ? "> " : "  ") << "Edytuj hasło\n";
+                            cout << (wybor == 2 ? "> " : "  ") << "Edytuj telefon\n";
+                            cout << (wybor == 3 ? "> " : "  ") << "Usuń konto\n";
+                            cout << (wybor == 4 ? "> " : "  ") << "Powrót\n";
+                            cout << "===========================\n";
+
+                            key = _getch();
+                            if (key == 72) wybor = (wybor + 4) % 5; 
+                            else if (key == 80) wybor = (wybor + 1) % 5; 
+                            else if (key == 13) { // ENTER
+                                string nowy;
+                                switch (wybor) {
+                                case 0: 
+                                    cout << "Nowy login: "; cin >> nowy;
+                                    get<0>(uzytkownicy[idx]) = nowy;
+                                    break;
+                                case 1: 
+                                    cout << "Nowe hasło: "; cin >> nowy;
+                                    get<1>(uzytkownicy[idx]) = nowy;
+                                    break;
+                                case 2: 
+                                    cout << "Nowy telefon: "; cin >> nowy;
+                                    get<2>(uzytkownicy[idx]) = nowy;
+                                    break;
+                                case 3:
+                                    uzytkownicy.erase(uzytkownicy.begin() + idx);
+                                    SetColor(92);
+                                    cout << "Konto usunięte.\n";
+                                    ResetColor();
+                                    system("pause");
+                                    wyjscie_z_konta = true;
+                                    idx = 0; 
+                                    break;
+                                case 4: 
+                                    wyjscie_z_konta = true;
+                                    break;
+                                }
+
+                                ofstream plik_out(nazwa_pliku);
+                                for (auto& u : uzytkownicy)
+                                    plik_out << get<0>(u) << " " << get<1>(u) << " " << get<2>(u) << endl;
+                                plik_out.close();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     string dzisiejsza_data() {
         time_t now = time(0);
@@ -211,7 +430,9 @@ public:
                 cout << "Podaj liczbę dni: "; cin >> dni;
 
                 if (ilosc > sprzety[wybor].get_ilosc()) {
+                    SetColor(91);
                     cout << "Niewystarczająca ilość sprzętu!\n";
+                    ResetColor();
                     system("pause");
                     continue;
                 }
@@ -222,7 +443,10 @@ public:
                 sprzety[wybor].set_ilosc(sprzety[wybor].get_ilosc() - ilosc);
                 wypozyczenia.push_back(w);
                 zapisz_wypozyczenia();
+                SetColor(92);
                 cout << "Sprzęt został wypożyczony pomyślnie!\n";
+                ResetColor();
+
                 system("pause");
                 return;
             }
@@ -239,50 +463,63 @@ public:
             int id, ilosc, dni;
             string nazwa, poczatek, koniec, imie, nazwisko, telefon;
             ss >> id >> nazwa >> ilosc >> dni >> poczatek >> koniec >> imie >> nazwisko >> telefon;
+
             Wypozyczenie w(id, nazwa, ilosc, dni);
             w.set_poczatek_wypozyczenia(poczatek);
             w.set_koniec_wypozyczenia(koniec);
             w.set_klient(OsobaWypozyczajaca(imie, nazwisko, telefon));
+
             wypozyczenia.push_back(w);
         }
     }
 
     void zakoncz_wypozyczenie(int idx) {
-        if (idx < 0 || idx >= wypozyczenia.size()) return;
-
-        string nazwa = wypozyczenia[idx].get_nazwa_sprzetu();
-        int ilosc = wypozyczenia[idx].get_ilosc_sprzetu();
-        int dni = wypozyczenia[idx].get_ilosc_dni_wypozyczenia();
-        double cena = 0;
-        for (auto& s : sprzety) {
-            if (s.get_nazwa() == nazwa) {
-                cena = s.get_cena();
-                s.set_ilosc(s.get_ilosc() + ilosc);
-                break;
-            }
-        }
-
-        double do_zaplaty = cena * ilosc * dni;
-        cout << "========= PODSUMOWANIE WYPOŻYCZENIA =========\n";
-        cout << "Sprzęt: " << nazwa << "\nIlość: " << ilosc << "\nDni: " << dni
-            << "\nCena za dzień: " << cena << " PLN\n-------------------------------------------\nDO ZAPŁATY: "
-            << do_zaplaty << " PLN\n===========================================\n";
-
         ofstream archiwum("archiwalne_wypozyczenia.txt", ios::app);
+
         auto& w = wypozyczenia[idx];
         archiwum << w.get_id() << " " << w.get_nazwa_sprzetu() << " "
             << w.get_ilosc_sprzetu() << " " << w.get_ilosc_dni_wypozyczenia() << " "
             << w.get_poczatek_wypozyczenia() << " " << w.get_koniec_wypozyczenia() << " "
             << w.get_klient().get_imie() << " " << w.get_klient().get_nazwisko() << " "
             << w.get_klient().get_telefon() << "\n";
+
         archiwum.close();
 
         wypozyczenia.erase(wypozyczenia.begin() + idx);
         zapisz_wypozyczenia();
+
+        SetColor(92);
+        cout << "Wypożyczenie zostało zakończone i przeniesione do archiwum.\n";
+        ResetColor();
         system("pause");
     }
 
+    void przenies_przeterminowane_do_archiwum() {
+        ofstream archiwum("archiwalne_wypozyczenia.txt", ios::app);
+
+        for (int i = 0; i < wypozyczenia.size(); ) {
+            if (czy_data_minela(wypozyczenia[i].get_koniec_wypozyczenia())) {
+
+                auto& w = wypozyczenia[i];
+                archiwum << w.get_id() << " " << w.get_nazwa_sprzetu() << " "
+                    << w.get_ilosc_sprzetu() << " " << w.get_ilosc_dni_wypozyczenia() << " "
+                    << w.get_poczatek_wypozyczenia() << " " << w.get_koniec_wypozyczenia() << " "
+                    << w.get_klient().get_imie() << " " << w.get_klient().get_nazwisko() << " "
+                    << w.get_klient().get_telefon() << "\n";
+
+                wypozyczenia.erase(wypozyczenia.begin() + i);
+            }
+            else {
+                i++;
+            }
+        }
+
+        archiwum.close();
+        zapisz_wypozyczenia();
+    }
+
     void wyswietl_wypozyczenia() {
+        przenies_przeterminowane_do_archiwum();
         if (wypozyczenia.empty()) {
             cout << "Brak aktualnych wypożyczeń.\n";
             system("pause");
@@ -308,11 +545,6 @@ public:
             else if (key == 13) {
                 if (wybor == wypozyczenia.size()) return;
                 zakoncz_wypozyczenie(wybor);
-                if (wypozyczenia.empty()) {
-                    cout << "Brak aktualnych wypożyczeń.\n";
-                    system("pause");
-                    return;
-                }
             }
         }
     }
@@ -336,19 +568,22 @@ public:
     }
 
     void wyswietl_archiwalne_wypozyczenia_klient(const string& telefon) {
+        przenies_przeterminowane_do_archiwum();
         cout << "=== ARCHIWALNE WYPOŻYCZENIA ===\n";
+
         ifstream plik("archiwalne_wypozyczenia.txt");
-        if (!plik.is_open()) { cout << "Brak archiwalnych danych.\n"; system("pause"); return; }
+        if (!plik.is_open()) {
+            cout << "Brak archiwalnych danych.\n";
+            system("pause");
+            return;
+        }
 
-        string line;
+        int id, ilosc, dni;
+        string nazwa, poczatek, koniec, imie, nazwisko, tel;
         bool jest = false;
-        while (getline(plik, line)) {
-            istringstream ss(line);
-            int id, ilosc, dni;
-            string nazwa, poczatek, koniec, imie, nazwisko, tel;
-            ss >> id >> nazwa >> ilosc >> dni >> poczatek >> koniec >> imie >> nazwisko >> tel;
 
-            if (tel == telefon && czy_data_minela(koniec)) { 
+        while (plik >> id >> nazwa >> ilosc >> dni >> poczatek >> koniec >> imie >> nazwisko >> tel) {
+            if (tel == telefon) {
                 cout << "ID: " << id
                     << ", Sprzęt: " << nazwa
                     << ", Ilość: " << ilosc
@@ -435,9 +670,18 @@ public:
             else if (key == 80) wybor = (wybor + 1) % 4;
             else if (key == 13) {
                 switch (wybor) {
-                case 0: { string n; cout << "Podaj nową nazwę: "; cin >> n; sprzety[idx].set_nazwa(n); break; }
-                case 1: { int il; cout << "Podaj nową ilość: "; cin >> il; sprzety[idx].set_ilosc(il); break; }
-                case 2: { double c; cout << "Podaj nową cenę: "; cin >> c; sprzety[idx].set_cena(c); break; }
+                case 0: { 
+                    string n; cout << "Podaj nową nazwę: "; cin >> n; sprzety[idx].set_nazwa(n); 
+                    break; 
+                }
+                case 1: { 
+                    int il; cout << "Podaj nową ilość: "; cin >> il; sprzety[idx].set_ilosc(il);
+                    break; 
+                }
+                case 2: { 
+                    double c; cout << "Podaj nową cenę: "; cin >> c; sprzety[idx].set_cena(c);
+                    break; 
+                }
                 case 3: return;
                 }
                 zapisz_stan();
@@ -454,20 +698,23 @@ void modul_pracownika(Wypozyczalnia& wypozyczalnia) {
 
     while (true) {
         system("cls");
+        SetColor(94);
         cout << "=== WYPOŻYCZALNIA SPRZĘTU WODNEGO ===\n";
+        ResetColor();
         cout << (wybor == 0 ? "> " : "  ") << "Wyświetl dostępne sprzęty\n";
         cout << (wybor == 1 ? "> " : "  ") << "Wypożycz sprzęt\n";
         cout << (wybor == 2 ? "> " : "  ") << "Zakończ wypożyczenie\n";
         cout << (wybor == 3 ? "> " : "  ") << "Cennik\n";
         cout << (wybor == 4 ? "> " : "  ") << "Edytuj sprzęty\n";
         cout << (wybor == 5 ? "> " : "  ") << "Wyświetl wypożyczenia\n";
-        // edycja danych uzytkownika
-        cout << (wybor == 6 ? "> " : "  ") << "Wyjdź\n";
+        cout << (wybor == 6 ? "> " : "  ") << "Dodaj użytkownika systemu\n";
+        cout << (wybor == 7 ? "> " : "  ") << "Manipuluj użytkownikami systemu\n";
+        cout << (wybor == 8 ? "> " : "  ") << "Wyjdź\n";
         cout << "=====================================\n";
 
         key = _getch();
-        if (key == 72) wybor = (wybor + 6) % 7;
-        else if (key == 80) wybor = (wybor + 1) % 7;
+        if (key == 72) wybor = (wybor + 8) % 9;
+        else if (key == 80) wybor = (wybor + 1) % 9;
         else if (key == 13) {
             switch (wybor) {
             case 0: wypozyczalnia.wyswietl_sprzety(); break;
@@ -476,7 +723,9 @@ void modul_pracownika(Wypozyczalnia& wypozyczalnia) {
             case 3: wypozyczalnia.wyswietl_cennik(); break;
             case 4: wypozyczalnia.wybierz_sprzet_do_edycji(); break;
             case 5: wypozyczalnia.wyswietl_wypozyczenia_bez_zakonczenia(); break;
-            case 6:
+            case 6: wypozyczalnia.dodaj_uzytkownika(); break;
+            case 7: wypozyczalnia.manipuluj_uzytkownikami(); break;
+            case 8:
                 wypozyczalnia.zapisz_stan();
                 wypozyczalnia.zapisz_wypozyczenia();
                 cout << "Dziękujemy za skorzystanie z oprogramowania. Do zobaczenia!\n";
@@ -494,7 +743,9 @@ void modul_klienta(Wypozyczalnia& wypozyczalnia, const string& telefon_zalogowan
 
     while (true) {
         system("cls");
+        SetColor(94);
         cout << "=== WYPOŻYCZALNIA SPRZĘTU WODNEGO ===\n";
+        ResetColor();
         cout << (wybor == 0 ? "> " : "  ") << "Wyświetl dostępność sprzętów\n";
         cout << (wybor == 1 ? "> " : "  ") << "Cennik\n";
         cout << (wybor == 2 ? "> " : "  ") << "Wyświetl aktualne wypożyczenia\n";
@@ -593,7 +844,10 @@ int main() {
         }
 
         if (rola == "pracownik") {
+            SetColor(92);
             cout << "Pomyślnie zalogowano jako: pracownik!" << endl;
+            ResetColor();
+
             cout << "Trwa wczytywanie panelu..." << endl;
             Sleep(2000);
             modul_pracownika(wypozyczalnia);
@@ -601,16 +855,16 @@ int main() {
 
         if (rola == "klient") {
             wypozyczalnia.wczytaj_wypozyczenia_z_pliku();
+            wypozyczalnia.przenies_przeterminowane_do_archiwum();
+
+            SetColor(92);
             cout << "Pomyślnie zalogowano jako: klient!" << endl;
+            ResetColor();
             cout << "Trwa wczytywanie panelu..." << endl;
             Sleep(2000);
             modul_klienta(wypozyczalnia, telefon_zalogowanego);
         }
             
     }
-    // todo
-    // archiwalne wypozyczenia po stronie klienta
-    // dodawanie uzytkownikow po stronie pracownika
-    // kolorki, debug
     return 0;
 }
