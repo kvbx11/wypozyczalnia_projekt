@@ -1,4 +1,4 @@
-Kajak 13 120
+Kajak 27 120
 SUP 8 180
 Ponton 100 3000
 Kamizelka 20 20

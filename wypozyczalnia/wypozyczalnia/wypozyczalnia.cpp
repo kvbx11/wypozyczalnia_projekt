@@ -10,6 +10,17 @@
 
 using namespace std;
 
+template<typename T>
+bool bezpieczny_input(T& zmienna) {
+    cin >> zmienna;
+    if (cin.fail()) {
+        cin.clear();
+        cin.ignore(10000, '\n');
+        return false;
+    }
+    return true;
+}
+
 void SetColor(int textColor)
 {
     cout << "\033[" << textColor << "m";
@@ -110,10 +121,21 @@ public:
     void wypozycz() {
         cout << "========= PODAJ DANE KLIENTA ========\n";
         string imie, nazwisko, telefon;
-        cin.ignore();
+
+        cin.ignore(10000, '\n');
         cout << "Imię: "; getline(cin, imie);
-        cout << "Nazwisko: "; getline(cin, nazwisko);
-        cout << "Telefon: "; getline(cin, telefon);
+
+        if (imie.empty()) {
+            cout << "Anulowano wypożyczenie.\n";
+            return;
+        }
+
+        cout << "Nazwisko: ";
+        getline(cin, nazwisko);
+
+        cout << "Telefon: ";
+        getline(cin, telefon);
+
         klient = OsobaWypozyczajaca(imie, nazwisko, telefon);
         cout << "=====================================\n";
     }
@@ -158,25 +180,8 @@ private:
     vector<Wypozyczenie> wypozyczenia;
     vector<OsobaWypozyczajaca> klienci;
 
-    void wczytaj_wypozyczenia() {
-        ifstream plik("wypozyczenia.txt");
-        if (!plik.is_open()) return;
-        string line;
-        while (getline(plik, line)) {
-            istringstream ss(line);
-            int id, ilosc, dni;
-            string nazwa, poczatek, koniec, imie, nazwisko, telefon;
-            ss >> id >> nazwa >> ilosc >> dni >> poczatek >> koniec >> imie >> nazwisko >> telefon;
-            Wypozyczenie w(id, nazwa, ilosc, dni);
-            w.set_poczatek_wypozyczenia(poczatek);
-            w.set_koniec_wypozyczenia(koniec);
-            w.set_klient(OsobaWypozyczajaca(imie, nazwisko, telefon));
-            wypozyczenia.push_back(w);
-        }
-    }
-
 public:
-    Wypozyczalnia() { wczytaj_sprzet(); wczytaj_wypozyczenia(); }
+    Wypozyczalnia() { wczytaj_sprzet(); wczytaj_wypozyczenia_z_pliku(); }
 
     void wczytaj_sprzet() {
         ifstream plik("sprzet_wodny.txt");
@@ -233,6 +238,12 @@ public:
                 cin >> haslo;
                 cout << "Telefon: ";
                 cin >> telefon;
+
+                if (telefon.length() != 9 || telefon.find_first_not_of("0123456789") != string::npos) {
+                    cout << "Numer telefonu musi mieć dokładnie 9 cyfr!\n";
+                    system("pause");
+                    return;
+                }
 
                 if (login.empty() || haslo.empty() || telefon.empty()) {
                     SetColor(91);
@@ -352,8 +363,16 @@ public:
                                     cout << "Nowe hasło: "; cin >> nowy;
                                     get<1>(uzytkownicy[idx]) = nowy;
                                     break;
-                                case 2: 
-                                    cout << "Nowy telefon: "; cin >> nowy;
+                                case 2:
+                                    cout << "Nowy telefon: ";
+                                    cin >> nowy;
+
+                                    if (nowy.length() != 9 || nowy.find_first_not_of("0123456789") != string::npos) {
+                                        cout << "Numer telefonu musi mieć 9 cyfr!\n";
+                                        system("pause");
+                                        break;
+                                    }
+
                                     get<2>(uzytkownicy[idx]) = nowy;
                                     break;
                                 case 3:
@@ -426,8 +445,19 @@ public:
                 if (wybor == sprzety.size()) return;
 
                 int ilosc, dni;
-                cout << "Podaj ilość: "; cin >> ilosc;
-                cout << "Podaj liczbę dni: "; cin >> dni;
+                cout << "Podaj ilość: ";
+                if (!bezpieczny_input(ilosc) || ilosc <= 0) {
+                    cout << "Błędna ilość!\n";
+                    system("pause");
+                    return;
+                }
+
+                cout << "Podaj liczbę dni: ";
+                if (!bezpieczny_input(dni) || dni <= 0) {
+                    cout << "Błędna liczba dni!\n";
+                    system("pause");
+                    return;
+                }
 
                 if (ilosc > sprzety[wybor].get_ilosc()) {
                     SetColor(91);
@@ -440,13 +470,23 @@ public:
                 int nowe_id = wypozyczenia.size() + 1;
                 Wypozyczenie w(nowe_id, sprzety[wybor].get_nazwa(), ilosc, dni);
                 w.wypozycz();
-                sprzety[wybor].set_ilosc(sprzety[wybor].get_ilosc() - ilosc);
+
+                if (w.get_klient().get_imie().empty()) {
+                    cout << "Anulowano wypożyczenie.\n";
+                    system("pause");
+                    return;
+                }
+
+                sprzety[wybor].set_ilosc(
+                    sprzety[wybor].get_ilosc() - ilosc
+                );
+                zapisz_stan();
                 wypozyczenia.push_back(w);
                 zapisz_wypozyczenia();
+
                 SetColor(92);
                 cout << "Sprzęt został wypożyczony pomyślnie!\n";
                 ResetColor();
-
                 system("pause");
                 return;
             }
@@ -474,6 +514,26 @@ public:
     }
 
     void zakoncz_wypozyczenie(int idx) {
+        if (idx < 0 || idx >= wypozyczenia.size()) return;
+
+        string nazwa = wypozyczenia[idx].get_nazwa_sprzetu();
+        int ilosc = wypozyczenia[idx].get_ilosc_sprzetu();
+        int dni = wypozyczenia[idx].get_ilosc_dni_wypozyczenia();
+        double cena = 0;
+        for (auto& s : sprzety) {
+            if (s.get_nazwa() == nazwa) {
+                cena = s.get_cena();
+                s.set_ilosc(s.get_ilosc() + ilosc);
+                break;
+            }
+        }
+
+        double do_zaplaty = cena * ilosc * dni;
+        cout << "========= PODSUMOWANIE WYPOŻYCZENIA =========\n";
+        cout << "Sprzęt: " << nazwa << "\nIlość: " << ilosc << "\nDni: " << dni
+            << "\nCena za dzień: " << cena << " PLN\n-------------------------------------------\nDO ZAPŁATY: "
+            << do_zaplaty << " PLN\n===========================================\n";
+
         ofstream archiwum("archiwalne_wypozyczenia.txt", ios::app);
 
         auto& w = wypozyczenia[idx];
@@ -484,6 +544,20 @@ public:
             << w.get_klient().get_telefon() << "\n";
 
         archiwum.close();
+
+        string nazwa1 = w.get_nazwa_sprzetu();
+        int ilosc1 = w.get_ilosc_sprzetu();
+
+        for (auto& s : sprzety) {
+            if (s.get_nazwa() == nazwa1) {
+                s.set_ilosc(s.get_ilosc() + ilosc1);
+                break;
+            }
+        }
+
+
+
+        zapisz_stan();
 
         wypozyczenia.erase(wypozyczenia.begin() + idx);
         zapisz_wypozyczenia();
@@ -674,13 +748,27 @@ public:
                     string n; cout << "Podaj nową nazwę: "; cin >> n; sprzety[idx].set_nazwa(n); 
                     break; 
                 }
-                case 1: { 
-                    int il; cout << "Podaj nową ilość: "; cin >> il; sprzety[idx].set_ilosc(il);
-                    break; 
+                case 1: {
+                    int il;
+                    cout << "Podaj nową ilość: ";
+                    if (!bezpieczny_input(il) || il < 0) {
+                        cout << "Błędna liczba!\n";
+                        system("pause");
+                        return;
+                    }
+                    sprzety[idx].set_ilosc(il);
+                    break;
                 }
-                case 2: { 
-                    double c; cout << "Podaj nową cenę: "; cin >> c; sprzety[idx].set_cena(c);
-                    break; 
+                case 2: {
+                    double c;
+                    cout << "Podaj nową cenę: ";
+                    if (!bezpieczny_input(c) || c < 0) {
+                        cout << "Błędna cena!\n";
+                        system("pause");
+                        return;
+                    }
+                    sprzety[idx].set_cena(c);
+                    break;
                 }
                 case 3: return;
                 }
@@ -709,7 +797,7 @@ void modul_pracownika(Wypozyczalnia& wypozyczalnia) {
         cout << (wybor == 5 ? "> " : "  ") << "Wyświetl wypożyczenia\n";
         cout << (wybor == 6 ? "> " : "  ") << "Dodaj użytkownika systemu\n";
         cout << (wybor == 7 ? "> " : "  ") << "Manipuluj użytkownikami systemu\n";
-        cout << (wybor == 8 ? "> " : "  ") << "Wyjdź\n";
+        cout << (wybor == 8 ? "> " : "  ") << "Wyloguj\n";
         cout << "=====================================\n";
 
         key = _getch();
@@ -750,7 +838,7 @@ void modul_klienta(Wypozyczalnia& wypozyczalnia, const string& telefon_zalogowan
         cout << (wybor == 1 ? "> " : "  ") << "Cennik\n";
         cout << (wybor == 2 ? "> " : "  ") << "Wyświetl aktualne wypożyczenia\n";
         cout << (wybor == 3 ? "> " : "  ") << "Wyświetl archiwalne wypożyczenia\n";
-        cout << (wybor == 4 ? "> " : "  ") << "Wyjdź\n";
+        cout << (wybor == 4 ? "> " : "  ") << "Wyloguj\n";
         cout << "=====================================\n";
 
         key = _getch();
@@ -832,7 +920,6 @@ bool login(string& rola, string& telefon_zalogowanego) {
 int main() {
     setlocale(LC_ALL, "polish");
     Wypozyczalnia wypozyczalnia;
-
     while (true) {
         system("cls");
         string rola;
